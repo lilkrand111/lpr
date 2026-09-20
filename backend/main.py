@@ -3,6 +3,9 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 from typing import Annotated
 
+from pathlib import Path as FilePath
+from fastapi.staticfiles import StaticFiles
+
 from database import get_session, engine, Base
 from models import Note
 from schemas import NoteCreate, NoteRead
@@ -68,3 +71,7 @@ def delete_note(
         )
     session.delete(note)
     session.commit()
+
+
+FRONTEND_DIR = FilePath(__file__).resolve().parent.parent / "frontend"
+app.mount("/", StaticFiles(directory=FRONTEND_DIR, html=True), name="frontend")

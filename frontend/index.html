@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Заметки</title>
+  <style>
+    :root {
+      --bg: #eef1f4;
+      --surface: #ffffff;
+      --ink: #1d2733;
+      --muted: #66727f;
+      --line: #d8dee5;
+      --accent: #0f6b6b;
+      --accent-ink: #ffffff;
+      --accent-soft: #e3f1f0;
+      --danger: #b3261e;
+      --danger-soft: #fbeae8;
+      --radius: 8px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    }
+
+    .app {
+      display: grid;
+      grid-template-columns: minmax(260px, 340px) 1fr;
+      gap: 20px;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 24px 16px;
+      min-height: 100vh;
+      align-items: start;
+    }
+
+    h1 { margin: 0; font-size: 1.5rem; letter-spacing: -0.01em; }
+
+    .sidebar, .editor {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+    }
+
+    .sidebar-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 16px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .list { list-style: none; margin: 0; padding: 0; }
+
+    .list button {
+      display: block;
+      width: 100%;
+      text-align: left;
+      padding: 12px 16px 12px 13px;
+      border: 0;
+      border-left: 3px solid transparent;
+      border-bottom: 1px solid var(--line);
+      background: transparent;
+      color: inherit;
+      font: inherit;
+      cursor: pointer;
+    }
+    .list li:last-child button { border-bottom: 0; }
+    .list button:hover { background: var(--bg); }
+    .list button[aria-current="true"] {
+      background: var(--accent-soft);
+      border-left-color: var(--accent);
+    }
+
+    .note-title {
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .note-snippet {
+      color: var(--muted);
+      font-size: 0.9rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .note-date { color: var(--muted); font-size: 0.8rem; margin-top: 2px; }
+
+    .empty { margin: 0; padding: 16px; color: var(--muted); }
+
+    .editor { padding: 20px; }
+
+    label { display: block; margin-bottom: 4px; font-weight: 600; font-size: 0.9rem; }
+
+    input, textarea {
+      display: block;
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      color: inherit;
+      font: inherit;
+    }
+    textarea { min-height: 240px; resize: vertical; }
+    input + label, textarea + label { margin-top: 16px; }
+
+    .meta { min-height: 1.5em; margin: 8px 0 0; color: var(--muted); font-size: 0.85rem; }
+
+    .actions { display: flex; gap: 10px; margin-top: 16px; }
+
+    .btn {
+      padding: 9px 16px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      color: var(--ink);
+      font: inherit;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn:hover:not(:disabled) { background: var(--bg); }
+    .btn:disabled { opacity: 0.55; cursor: default; }
+    .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+    .btn.primary:hover:not(:disabled) { background: #0b5555; }
+    .btn.danger { color: var(--danger); border-color: var(--danger); margin-left: auto; }
+    .btn.danger:hover:not(:disabled) { background: var(--danger-soft); }
+
+    .status { margin: 16px 0 0; padding: 10px 12px; border-radius: var(--radius); }
+    .status.ok { background: var(--accent-soft); color: #0b4a4a; }
+    .status.error { background: var(--danger-soft); color: var(--danger); }
+
+    :focus-visible { outline: 3px solid #f2b705; outline-offset: 2px; }
+
+    [hidden] { display: none !important; }
+
+    @media (max-width: 720px) {
+      .app { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="sidebar-head">
+        <h1>Заметки</h1>
+        <button type="button" id="new-btn" class="btn">Новая заметка</button>
+      </div>
+      <ul id="list" class="list"></ul>
+      <p id="empty" class="empty" hidden>Заметок пока нет. Заполните форму и нажмите «Создать заметку».</p>
+    </aside>
+
+    <main class="editor">
+      <form id="form">
+        <label for="title">Заголовок</label>
+        <input id="title" maxlength="200" required autocomplete="off">
+
+        <label for="content">Текст</label>
+        <textarea id="content"></textarea>
+
+        <p id="meta" class="meta"></p>
+
+        <div class="actions">
+          <button type="submit" id="save-btn" class="btn primary">Создать заметку</button>
+          <button type="button" id="delete-btn" class="btn danger" hidden>Удалить заметку</button>
+        </div>
+      </form>
+      <p id="status" class="status" role="status" hidden></p>
+    </main>
+  </div>
+
+  <script>
+    // Пустая строка = бэкенд на том же адресе, что и страница.
+    // Если открываете страницу отдельно (например, Live Server), укажите "http://localhost:8000".
+    const API_URL = "";
+
+    let notes = [];
+    let currentId = null;
+    let statusTimer = null;
+
+    const $ = (id) => document.getElementById(id);
+    const els = {
+      list: $("list"),
+      empty: $("empty"),
+      form: $("form"),
+      title: $("title"),
+      content: $("content"),
+      meta: $("meta"),
+      saveBtn: $("save-btn"),
+      deleteBtn: $("delete-btn"),
+      newBtn: $("new-btn"),
+      status: $("status"),
+    };
+
+    /* ---------- работа с API ---------- */
+
+    async function api(path, options = {}) {
+      let res;
+      try {
+        res = await fetch(API_URL + path, {
+          headers: { "Content-Type": "application/json" },
+          ...options,
+        });
+      } catch {
+        throw new Error("Не удалось связаться с сервером. Проверьте, что бэкенд запущен.");
+      }
+
+      if (!res.ok) {
+        let message = "Ошибка сервера (" + res.status + ")";
+        try {
+          const data = await res.json();
+          if (typeof data.detail === "string") {
+            message = data.detail;
+          } else if (Array.isArray(data.detail)) {
+            message = data.detail.map((d) => d.msg).join("; ");
+          }
+        } catch { /* тело ответа не JSON — оставляем общий текст */ }
+        throw new Error(message);
+      }
+
+      return res.status === 204 ? null : res.json();
+    }
+
+    /* ---------- интерфейс ---------- */
+
+    function showStatus(text, isError = false) {
+      clearTimeout(statusTimer);
+      els.status.textContent = text;
+      els.status.className = "status " + (isError ? "error" : "ok");
+      els.status.hidden = false;
+      if (!isError) {
+        statusTimer = setTimeout(() => { els.status.hidden = true; }, 3000);
+      }
+    }
+
+    function formatDate(iso) {
+      return new Date(iso).toLocaleString("ru-RU", {
+        day: "numeric", month: "short", hour: "2-digit", minute: "2-digit",
+      });
+    }
+
+    function renderList() {
+      els.list.replaceChildren();
+      els.empty.hidden = notes.length > 0;
+
+      // Сначала недавно изменённые (ISO-строки сравниваются как обычный текст)
+      const sorted = [...notes].sort((a, b) => b.updated_at.localeCompare(a.updated_at));
+
+      for (const note of sorted) {
+        const li = document.createElement("li");
+        const btn = document.createElement("button");
+        btn.type = "button";
+        if (note.id === currentId) btn.setAttribute("aria-current", "true");
+
+        const title = document.createElement("div");
+        title.className = "note-title";
+        title.textContent = note.title;
+
+        const snippet = document.createElement("div");
+        snippet.className = "note-snippet";
+        snippet.textContent = note.content || "Без текста";
+
+        const date = document.createElement("div");
+        date.className = "note-date";
+        date.textContent = formatDate(note.updated_at);
+
+        btn.append(title, snippet, date);
+        btn.addEventListener("click", () => selectNote(note.id));
+        li.append(btn);
+        els.list.append(li);
+      }
+    }
+
+    function selectNote(id) {
+      const note = notes.find((n) => n.id === id);
+      if (!note) return;
+      currentId = id;
+      els.title.value = note.title;
+      els.content.value = note.content;
+      els.meta.textContent =
+        "Создана " + formatDate(note.created_at) + ", изменена " + formatDate(note.updated_at);
+      els.saveBtn.textContent = "Сохранить изменения";
+      els.deleteBtn.hidden = false;
+      renderList();
+    }
+
+    function newNote() {
+      currentId = null;
+      els.form.reset();
+      els.meta.textContent = "";
+      els.saveBtn.textContent = "Создать заметку";
+      els.deleteBtn.hidden = true;
+      els.status.hidden = true;
+      renderList();
+      els.title.focus();
+    }
+
+    function setBusy(busy) {
+      els.saveBtn.disabled = busy;
+      els.deleteBtn.disabled = busy;
+    }
+
+    /* ---------- действия ---------- */
+
+    async function loadNotes() {
+      try {
+        notes = await api("/notes");
+        renderList();
+      } catch (err) {
+        showStatus(err.message, true);
+      }
+    }
+
+    async function saveNote(event) {
+      event.preventDefault();
+      const payload = JSON.stringify({
+        title: els.title.value.trim(),
+        content: els.content.value,
+      });
+
+      setBusy(true);
+      try {
+        const isEdit = currentId !== null;
+        const saved = await api(isEdit ? "/notes/" + currentId : "/notes", {
+          method: isEdit ? "PUT" : "POST",
+          body: payload,
+        });
+
+        notes = isEdit ? notes.map((n) => (n.id === saved.id ? saved : n)) : [...notes, saved];
+        selectNote(saved.id);
+        showStatus(isEdit ? "Изменения сохранены." : "Заметка создана.");
+      } catch (err) {
+        showStatus(err.message, true);
+      } finally {
+        setBusy(false);
+      }
+    }
+
+    async function deleteNote() {
+      if (currentId === null) return;
+      if (!confirm("Удалить эту заметку? Это действие нельзя отменить.")) return;
+
+      setBusy(true);
+      try {
+        await api("/notes/" + currentId, { method: "DELETE" });
+        notes = notes.filter((n) => n.id !== currentId);
+        newNote();
+        showStatus("Заметка удалена.");
+      } catch (err) {
+        showStatus(err.message, true);
+      } finally {
+        setBusy(false);
+      }
+    }
+
+    els.form.addEventListener("submit", saveNote);
+    els.deleteBtn.addEventListener("click", deleteNote);
+    els.newBtn.addEventListener("click", newNote);
+
+    loadNotes();
+  </script>
+</body>
+</html>
