@@ -6,13 +6,11 @@ from typing import Annotated
 from pathlib import Path as FilePath
 from fastapi.staticfiles import StaticFiles
 
-from database import get_session, engine, Base
-from models import Note
-from schemas import NoteCreate, NoteRead
+from .database import get_session, engine, Base
+from .models import Note
+from .schemas import NoteCreate, NoteRead
 
 app = FastAPI()
-
-Base.metadata.create_all(bind=engine)
 
 
 @app.post("/notes", response_model=NoteRead, status_code=201)
