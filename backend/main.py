@@ -1,14 +1,23 @@
 from fastapi import FastAPI, Path, HTTPException, Depends
-from sqlalchemy import select
+from sqlalchemy import select, exists
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
 from typing import Annotated
 
 from pathlib import Path as FilePath
 from fastapi.staticfiles import StaticFiles
 
 from .database import get_session, engine, Base
-from .models import Note
-from .schemas import NoteCreate, NoteRead
+from .models import Note, User
+from .schemas import (
+    NoteCreate,
+    NoteRead,
+    UserCreate,
+    UserOut,
+    Token,
+    TokenData,
+)
+from .security import get_password_hash
 
 app = FastAPI()
 
@@ -69,6 +78,24 @@ def delete_note(
         )
     session.delete(note)
     session.commit()
+
+
+@app.post("/register", status_code=201, response_model=UserOut)
+def register_user(user_in: UserCreate, session: Session = Depends(get_session)):
+    user = User(
+        email=user_in.email,
+        hashed_password=get_password_hash(user_in.password),
+    )
+    session.add(user)
+    try:
+        session.commit()
+    except IntegrityError:
+        session.rollback()
+        raise HTTPException(
+            status_code=400, detail="Пользователь с таким email уже существует!"
+        )
+    session.refresh(user)
+    return user
 
 
 FRONTEND_DIR = FilePath(__file__).resolve().parent.parent / "frontend"
