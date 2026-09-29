@@ -28,4 +28,4 @@ class User(Base):
     email: Mapped[str] = mapped_column(String(200), unique=True, nullable=False)
     hashed_password: Mapped[str] = mapped_column(String(200), nullable=False)
 
-    notes: Mapped["Note"] = relationship(back_populates="owner")
+    notes: Mapped[list["Note"]] = relationship(back_populates="owner")

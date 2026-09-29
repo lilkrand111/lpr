@@ -11,6 +11,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 from typing import Annotated
 from fastapi import Depends, status, HTTPException
+from .database import get_session
 
 SECRET_KEY = settings.SECRET_KEY
 ALGORITHM = "HS256"
@@ -48,7 +49,9 @@ def create_access_token(data: dict):
     return encoded_jwt
 
 
-def get_current_user(db, token: Annotated[str, Depends(oauth2_scheme)]):
+def get_current_user(
+    session: Session = Depends(get_session), token: str = Depends(oauth2_scheme)
+):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -62,7 +65,7 @@ def get_current_user(db, token: Annotated[str, Depends(oauth2_scheme)]):
         token_data = TokenData(username=username)
     except InvalidTokenError:
         raise credentials_exception
-    user = db.scalar(select(User).where(User.email == username.lower()))
+    user = session.scalar(select(User).where(User.email == username.lower()))
     if user is None:
         raise credentials_exception
     return user

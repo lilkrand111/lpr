@@ -34,7 +34,7 @@ def create_note(
     session: Session = Depends(get_session),
     current_user: User = Depends(get_current_user),
 ):
-    note = Note(title=note_in.title, content=note_in.content)
+    note = Note(title=note_in.title, content=note_in.content, user_id=current_user.id)
     session.add(note)
     session.commit()
     session.refresh(note)
@@ -46,7 +46,7 @@ def get_notes(
     session: Session = Depends(get_session),
     current_user: User = Depends(get_current_user),
 ):
-    result = session.execute(select(Note))
+    result = session.execute(select(Note).where(Note.user_id == current_user.id))
     return result.scalars().all()
 
 
@@ -56,7 +56,9 @@ def get_note(
     session: Session = Depends(get_session),
     current_user: User = Depends(get_current_user),
 ):
-    note = session.get(Note, note_id)
+    note = session.execute(
+        select(Note).where(Note.user_id == current_user.id, Note.id == note_id)
+    ).scalar_one_or_none()
     if note is None:
         raise HTTPException(
             status_code=404, detail=f"Заметка с {note_id} ID не найдена!"
@@ -71,7 +73,9 @@ def edit_note(
     session: Session = Depends(get_session),
     current_user: User = Depends(get_current_user),
 ):
-    note = session.get(Note, note_id)
+    note = session.execute(
+        select(Note).where(Note.user_id == current_user.id, Note.id == note_id)
+    ).scalar_one_or_none()
     if note is None:
         raise HTTPException(
             status_code=404, detail=f"Заметка с {note_id} ID не найдена!"
@@ -89,7 +93,9 @@ def delete_note(
     session: Session = Depends(get_session),
     current_user: User = Depends(get_current_user),
 ):
-    note = session.get(Note, note_id)
+    note = session.execute(
+        select(Note).where(Note.user_id == current_user.id, Note.id == note_id)
+    ).scalar_one_or_none()
     if note is None:
         raise HTTPException(
             status_code=404, detail=f"Заметка с {note_id} ID не найдена!"
