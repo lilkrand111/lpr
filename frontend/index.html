@@ -6,126 +6,50 @@
   <title>Заметки</title>
   <style>
     :root {
-      --bg: #eef1f4;
-      --surface: #ffffff;
-      --ink: #1d2733;
-      --muted: #66727f;
-      --line: #d8dee5;
-      --accent: #0f6b6b;
-      --accent-ink: #ffffff;
-      --accent-soft: #e3f1f0;
-      --danger: #b3261e;
-      --danger-soft: #fbeae8;
-      --radius: 8px;
+      --bg: #eef1f4; --surface: #ffffff; --ink: #1d2733; --muted: #66727f;
+      --line: #d8dee5; --accent: #0f6b6b; --accent-ink: #ffffff; --accent-soft: #e3f1f0;
+      --danger: #b3261e; --danger-soft: #fbeae8; --radius: 8px;
     }
-
     * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--ink);
+      font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
 
-    body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--ink);
-      font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-    }
-
-    .app {
-      display: grid;
-      grid-template-columns: minmax(260px, 340px) 1fr;
-      gap: 20px;
-      max-width: 1000px;
-      margin: 0 auto;
-      padding: 24px 16px;
-      min-height: 100vh;
-      align-items: start;
-    }
-
+    .app { display: grid; grid-template-columns: minmax(260px, 340px) 1fr; gap: 20px;
+      max-width: 1000px; margin: 0 auto; padding: 24px 16px; min-height: 100vh; align-items: start; }
     h1 { margin: 0; font-size: 1.5rem; letter-spacing: -0.01em; }
 
-    .sidebar, .editor {
-      background: var(--surface);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-    }
-
-    .sidebar-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      padding: 16px;
-      border-bottom: 1px solid var(--line);
-    }
+    .sidebar, .editor, .auth { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); }
+    .sidebar-head { display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      padding: 16px; border-bottom: 1px solid var(--line); }
+    .user-row { display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      padding: 10px 16px; border-bottom: 1px solid var(--line); font-size: 0.9rem; color: var(--muted); }
+    .user-email { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .link-btn { border: 0; background: none; padding: 0; color: var(--accent); font: inherit;
+      font-weight: 600; cursor: pointer; text-decoration: underline; }
 
     .list { list-style: none; margin: 0; padding: 0; }
-
-    .list button {
-      display: block;
-      width: 100%;
-      text-align: left;
-      padding: 12px 16px 12px 13px;
-      border: 0;
-      border-left: 3px solid transparent;
-      border-bottom: 1px solid var(--line);
-      background: transparent;
-      color: inherit;
-      font: inherit;
-      cursor: pointer;
-    }
+    .list button { display: block; width: 100%; text-align: left; padding: 12px 16px 12px 13px;
+      border: 0; border-left: 3px solid transparent; border-bottom: 1px solid var(--line);
+      background: transparent; color: inherit; font: inherit; cursor: pointer; }
     .list li:last-child button { border-bottom: 0; }
     .list button:hover { background: var(--bg); }
-    .list button[aria-current="true"] {
-      background: var(--accent-soft);
-      border-left-color: var(--accent);
-    }
-
-    .note-title {
-      font-weight: 600;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .note-snippet {
-      color: var(--muted);
-      font-size: 0.9rem;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
+    .list button[aria-current="true"] { background: var(--accent-soft); border-left-color: var(--accent); }
+    .note-title { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .note-snippet { color: var(--muted); font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .note-date { color: var(--muted); font-size: 0.8rem; margin-top: 2px; }
-
     .empty { margin: 0; padding: 16px; color: var(--muted); }
 
     .editor { padding: 20px; }
-
     label { display: block; margin-bottom: 4px; font-weight: 600; font-size: 0.9rem; }
-
-    input, textarea {
-      display: block;
-      width: 100%;
-      padding: 10px 12px;
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      background: var(--surface);
-      color: inherit;
-      font: inherit;
-    }
+    input, textarea { display: block; width: 100%; padding: 10px 12px; border: 1px solid var(--line);
+      border-radius: var(--radius); background: var(--surface); color: inherit; font: inherit; }
     textarea { min-height: 240px; resize: vertical; }
     input + label, textarea + label { margin-top: 16px; }
-
     .meta { min-height: 1.5em; margin: 8px 0 0; color: var(--muted); font-size: 0.85rem; }
-
     .actions { display: flex; gap: 10px; margin-top: 16px; }
 
-    .btn {
-      padding: 9px 16px;
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      background: var(--surface);
-      color: var(--ink);
-      font: inherit;
-      font-weight: 600;
-      cursor: pointer;
-    }
+    .btn { padding: 9px 16px; border: 1px solid var(--line); border-radius: var(--radius);
+      background: var(--surface); color: var(--ink); font: inherit; font-weight: 600; cursor: pointer; }
     .btn:hover:not(:disabled) { background: var(--bg); }
     .btn:disabled { opacity: 0.55; cursor: default; }
     .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
@@ -137,21 +61,51 @@
     .status.ok { background: var(--accent-soft); color: #0b4a4a; }
     .status.error { background: var(--danger-soft); color: var(--danger); }
 
+    /* экран входа */
+    .auth-wrap { max-width: 400px; margin: 0 auto; padding: 48px 16px; }
+    .auth { padding: 24px; }
+    .auth h1 { margin-bottom: 16px; }
+    .tabs { display: flex; gap: 4px; margin-bottom: 20px; border-bottom: 1px solid var(--line); }
+    .tab { padding: 8px 14px; border: 0; border-bottom: 3px solid transparent; margin-bottom: -1px;
+      background: none; color: var(--muted); font: inherit; font-weight: 600; cursor: pointer; }
+    .tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+    .auth .btn.primary { width: 100%; margin-top: 20px; }
+
     :focus-visible { outline: 3px solid #f2b705; outline-offset: 2px; }
-
     [hidden] { display: none !important; }
-
-    @media (max-width: 720px) {
-      .app { grid-template-columns: 1fr; }
-    }
+    @media (max-width: 720px) { .app { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
-  <div class="app">
+  <!-- ===== Вход / регистрация ===== -->
+  <div id="auth-view" class="auth-wrap" hidden>
+    <div class="auth">
+      <h1>Заметки</h1>
+      <div class="tabs" role="tablist">
+        <button type="button" class="tab" role="tab" id="tab-login" aria-selected="true">Вход</button>
+        <button type="button" class="tab" role="tab" id="tab-register" aria-selected="false">Регистрация</button>
+      </div>
+      <form id="auth-form">
+        <label for="email">Email</label>
+        <input id="email" type="email" required autocomplete="email">
+        <label for="password">Пароль</label>
+        <input id="password" type="password" required autocomplete="current-password">
+        <button type="submit" id="auth-btn" class="btn primary">Войти</button>
+      </form>
+      <p id="auth-status" class="status" role="status" hidden></p>
+    </div>
+  </div>
+
+  <!-- ===== Заметки ===== -->
+  <div id="notes-view" class="app" hidden>
     <aside class="sidebar">
       <div class="sidebar-head">
         <h1>Заметки</h1>
         <button type="button" id="new-btn" class="btn">Новая заметка</button>
+      </div>
+      <div class="user-row">
+        <span id="user-email" class="user-email"></span>
+        <button type="button" id="logout-btn" class="link-btn">Выйти</button>
       </div>
       <ul id="list" class="list"></ul>
       <p id="empty" class="empty" hidden>Заметок пока нет. Заполните форму и нажмите «Создать заметку».</p>
@@ -161,12 +115,9 @@
       <form id="form">
         <label for="title">Заголовок</label>
         <input id="title" maxlength="200" required autocomplete="off">
-
         <label for="content">Текст</label>
         <textarea id="content"></textarea>
-
         <p id="meta" class="meta"></p>
-
         <div class="actions">
           <button type="submit" id="save-btn" class="btn primary">Создать заметку</button>
           <button type="button" id="delete-btn" class="btn danger" hidden>Удалить заметку</button>
@@ -178,38 +129,63 @@
 
   <script>
     // Пустая строка = бэкенд на том же адресе, что и страница.
-    // Если открываете страницу отдельно (например, Live Server), укажите "http://localhost:8000".
+    // Если открываете страницу отдельно (Live Server), укажите "http://localhost:8000".
     const API_URL = "";
+    const TOKEN_KEY = "notes_token";
 
     let notes = [];
     let currentId = null;
     let statusTimer = null;
+    let authMode = "login"; // "login" | "register"
 
     const $ = (id) => document.getElementById(id);
     const els = {
-      list: $("list"),
-      empty: $("empty"),
-      form: $("form"),
-      title: $("title"),
-      content: $("content"),
-      meta: $("meta"),
-      saveBtn: $("save-btn"),
-      deleteBtn: $("delete-btn"),
-      newBtn: $("new-btn"),
+      authView: $("auth-view"), notesView: $("notes-view"),
+      tabLogin: $("tab-login"), tabRegister: $("tab-register"),
+      authForm: $("auth-form"), email: $("email"), password: $("password"),
+      authBtn: $("auth-btn"), authStatus: $("auth-status"),
+      userEmail: $("user-email"), logoutBtn: $("logout-btn"),
+      list: $("list"), empty: $("empty"), form: $("form"),
+      title: $("title"), content: $("content"), meta: $("meta"),
+      saveBtn: $("save-btn"), deleteBtn: $("delete-btn"), newBtn: $("new-btn"),
       status: $("status"),
     };
 
+    /* ---------- токен ---------- */
+
+    const getToken = () => localStorage.getItem(TOKEN_KEY);
+    const setToken = (t) => localStorage.setItem(TOKEN_KEY, t);
+    const clearToken = () => localStorage.removeItem(TOKEN_KEY);
+
+    // payload у JWT только закодирован (base64url), читать его на клиенте можно.
+    // Берём email из sub только для показа; проверку подписи делает сервер.
+    function emailFromToken(token) {
+      try {
+        const b64 = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+        return JSON.parse(atob(b64)).sub || "";
+      } catch {
+        return "";
+      }
+    }
+
     /* ---------- работа с API ---------- */
 
+    class ApiError extends Error {
+      constructor(message, status) { super(message); this.status = status; }
+    }
+
+    // options.body: строка (JSON), URLSearchParams (форма) или undefined
     async function api(path, options = {}) {
+      const headers = {};
+      if (typeof options.body === "string") headers["Content-Type"] = "application/json";
+      const token = getToken();
+      if (token) headers["Authorization"] = "Bearer " + token;
+
       let res;
       try {
-        res = await fetch(API_URL + path, {
-          headers: { "Content-Type": "application/json" },
-          ...options,
-        });
+        res = await fetch(API_URL + path, { ...options, headers });
       } catch {
-        throw new Error("Не удалось связаться с сервером. Проверьте, что бэкенд запущен.");
+        throw new ApiError("Не удалось связаться с сервером. Проверьте, что бэкенд запущен.", 0);
       }
 
       if (!res.ok) {
@@ -221,23 +197,106 @@
           } else if (Array.isArray(data.detail)) {
             message = data.detail.map((d) => d.msg).join("; ");
           }
-        } catch { /* тело ответа не JSON — оставляем общий текст */ }
-        throw new Error(message);
+        } catch { /* тело ответа не JSON */ }
+        throw new ApiError(message, res.status);
       }
 
       return res.status === 204 ? null : res.json();
     }
 
-    /* ---------- интерфейс ---------- */
+    // Запросы к заметкам: если токен просрочен или невалиден (401) — выходим на экран входа
+    async function notesApi(path, options) {
+      try {
+        return await api(path, options);
+      } catch (err) {
+        if (err.status === 401) {
+          logout("Сессия истекла. Войдите снова.");
+          throw new ApiError("", 401);
+        }
+        throw err;
+      }
+    }
+
+    /* ---------- экраны ---------- */
+
+    function showAuthView(message, isError = false) {
+      els.notesView.hidden = true;
+      els.authView.hidden = false;
+      setAuthMode("login");
+      els.authForm.reset();
+      if (message) showAuthStatus(message, isError); else els.authStatus.hidden = true;
+      els.email.focus();
+    }
+
+    function showNotesView() {
+      els.authView.hidden = true;
+      els.notesView.hidden = false;
+      els.userEmail.textContent = emailFromToken(getToken());
+      notes = [];
+      newNote();
+      loadNotes();
+    }
+
+    function logout(message) {
+      clearToken();
+      notes = [];
+      currentId = null;
+      showAuthView(message, true);
+    }
+
+    function showAuthStatus(text, isError = false) {
+      els.authStatus.textContent = text;
+      els.authStatus.className = "status " + (isError ? "error" : "ok");
+      els.authStatus.hidden = false;
+    }
+
+    function setAuthMode(mode) {
+      authMode = mode;
+      const isLogin = mode === "login";
+      els.tabLogin.setAttribute("aria-selected", String(isLogin));
+      els.tabRegister.setAttribute("aria-selected", String(!isLogin));
+      els.authBtn.textContent = isLogin ? "Войти" : "Зарегистрироваться";
+      els.password.autocomplete = isLogin ? "current-password" : "new-password";
+      els.authStatus.hidden = true;
+    }
+
+    /* ---------- вход и регистрация ---------- */
+
+    async function login(email, password) {
+      // OAuth2PasswordRequestForm ждёт форму (x-www-form-urlencoded), а не JSON.
+      // Поле называется username, но бэкенд ищет по нему email.
+      const form = new URLSearchParams({ username: email, password });
+      const data = await api("/token", { method: "POST", body: form });
+      setToken(data.access_token);
+    }
+
+    async function submitAuth(event) {
+      event.preventDefault();
+      const email = els.email.value.trim();
+      const password = els.password.value;
+
+      els.authBtn.disabled = true;
+      try {
+        if (authMode === "register") {
+          await api("/register", { method: "POST", body: JSON.stringify({ email, password }) });
+        }
+        await login(email, password);
+        showNotesView();
+      } catch (err) {
+        showAuthStatus(err.message, true);
+      } finally {
+        els.authBtn.disabled = false;
+      }
+    }
+
+    /* ---------- заметки: интерфейс ---------- */
 
     function showStatus(text, isError = false) {
       clearTimeout(statusTimer);
       els.status.textContent = text;
       els.status.className = "status " + (isError ? "error" : "ok");
       els.status.hidden = false;
-      if (!isError) {
-        statusTimer = setTimeout(() => { els.status.hidden = true; }, 3000);
-      }
+      if (!isError) statusTimer = setTimeout(() => { els.status.hidden = true; }, 3000);
     }
 
     function formatDate(iso) {
@@ -249,8 +308,6 @@
     function renderList() {
       els.list.replaceChildren();
       els.empty.hidden = notes.length > 0;
-
-      // Сначала недавно изменённые (ISO-строки сравниваются как обычный текст)
       const sorted = [...notes].sort((a, b) => b.updated_at.localeCompare(a.updated_at));
 
       for (const note of sorted) {
@@ -262,11 +319,9 @@
         const title = document.createElement("div");
         title.className = "note-title";
         title.textContent = note.title;
-
         const snippet = document.createElement("div");
         snippet.className = "note-snippet";
         snippet.textContent = note.content || "Без текста";
-
         const date = document.createElement("div");
         date.className = "note-date";
         date.textContent = formatDate(note.updated_at);
@@ -283,7 +338,7 @@
       if (!note) return;
       currentId = id;
       els.title.value = note.title;
-      els.content.value = note.content;
+      els.content.value = note.content ?? "";
       els.meta.textContent =
         "Создана " + formatDate(note.created_at) + ", изменена " + formatDate(note.updated_at);
       els.saveBtn.textContent = "Сохранить изменения";
@@ -307,14 +362,14 @@
       els.deleteBtn.disabled = busy;
     }
 
-    /* ---------- действия ---------- */
+    /* ---------- заметки: действия ---------- */
 
     async function loadNotes() {
       try {
-        notes = await api("/notes");
+        notes = await notesApi("/notes");
         renderList();
       } catch (err) {
-        showStatus(err.message, true);
+        if (err.status !== 401) showStatus(err.message, true);
       }
     }
 
@@ -328,16 +383,15 @@
       setBusy(true);
       try {
         const isEdit = currentId !== null;
-        const saved = await api(isEdit ? "/notes/" + currentId : "/notes", {
+        const saved = await notesApi(isEdit ? "/notes/" + currentId : "/notes", {
           method: isEdit ? "PUT" : "POST",
           body: payload,
         });
-
         notes = isEdit ? notes.map((n) => (n.id === saved.id ? saved : n)) : [...notes, saved];
         selectNote(saved.id);
         showStatus(isEdit ? "Изменения сохранены." : "Заметка создана.");
       } catch (err) {
-        showStatus(err.message, true);
+        if (err.status !== 401) showStatus(err.message, true);
       } finally {
         setBusy(false);
       }
@@ -349,22 +403,28 @@
 
       setBusy(true);
       try {
-        await api("/notes/" + currentId, { method: "DELETE" });
+        await notesApi("/notes/" + currentId, { method: "DELETE" });
         notes = notes.filter((n) => n.id !== currentId);
         newNote();
         showStatus("Заметка удалена.");
       } catch (err) {
-        showStatus(err.message, true);
+        if (err.status !== 401) showStatus(err.message, true);
       } finally {
         setBusy(false);
       }
     }
 
+    /* ---------- запуск ---------- */
+
+    els.tabLogin.addEventListener("click", () => setAuthMode("login"));
+    els.tabRegister.addEventListener("click", () => setAuthMode("register"));
+    els.authForm.addEventListener("submit", submitAuth);
+    els.logoutBtn.addEventListener("click", () => logout());
     els.form.addEventListener("submit", saveNote);
     els.deleteBtn.addEventListener("click", deleteNote);
     els.newBtn.addEventListener("click", newNote);
 
-    loadNotes();
+    if (getToken()) showNotesView(); else showAuthView();
   </script>
 </body>
 </html>
