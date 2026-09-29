@@ -1,11 +1,12 @@
-from fastapi import FastAPI, Path, HTTPException, Depends
-from sqlalchemy import select, exists
+from fastapi import FastAPI, Path, HTTPException, Depends, status
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from typing import Annotated
 
 from pathlib import Path as FilePath
 from fastapi.staticfiles import StaticFiles
+from fastapi.security import OAuth2PasswordRequestForm
 
 from .database import get_session, engine, Base
 from .models import Note, User
@@ -17,7 +18,7 @@ from .schemas import (
     Token,
     TokenData,
 )
-from .security import get_password_hash
+from .security import get_password_hash, authenticate_user, create_access_token
 
 app = FastAPI()
 
@@ -83,7 +84,7 @@ def delete_note(
 @app.post("/register", status_code=201, response_model=UserOut)
 def register_user(user_in: UserCreate, session: Session = Depends(get_session)):
     user = User(
-        email=user_in.email,
+        email=user_in.email.lower(),
         hashed_password=get_password_hash(user_in.password),
     )
     session.add(user)
@@ -96,6 +97,22 @@ def register_user(user_in: UserCreate, session: Session = Depends(get_session)):
         )
     session.refresh(user)
     return user
+
+
+@app.post("/token", response_model=Token)
+def login(
+    form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
+    session: Session = Depends(get_session),
+):
+    user = authenticate_user(session, form_data.username, form_data.password)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    access_token = create_access_token(data={"sub": user.email})
+    return Token(access_token=access_token, token_type="bearer")
 
 
 FRONTEND_DIR = FilePath(__file__).resolve().parent.parent / "frontend"
