@@ -5,9 +5,12 @@ from pwdlib import PasswordHash
 from pydantic import BaseModel
 from .config import settings
 from .models import User
+from .schemas import TokenData
 from datetime import datetime, timedelta, timezone
 from sqlalchemy import select
 from sqlalchemy.orm import Session
+from typing import Annotated
+from fastapi import Depends, status, HTTPException
 
 SECRET_KEY = settings.SECRET_KEY
 ALGORITHM = "HS256"
@@ -43,3 +46,23 @@ def create_access_token(data: dict):
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
+
+
+def get_current_user(db, token: Annotated[str, Depends(oauth2_scheme)]):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        username = payload.get("sub")
+        if username is None:
+            raise credentials_exception
+        token_data = TokenData(username=username)
+    except InvalidTokenError:
+        raise credentials_exception
+    user = db.scalar(select(User).where(User.email == username.lower()))
+    if user is None:
+        raise credentials_exception
+    return user

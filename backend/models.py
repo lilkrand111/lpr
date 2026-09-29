@@ -1,6 +1,6 @@
 from datetime import datetime
-from sqlalchemy import String, Text, DateTime, func, text
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import String, Text, DateTime, func, ForeignKey
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from .database import Base
 
 
@@ -16,6 +16,9 @@ class Note(Base):
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+
+    owner: Mapped["User"] = relationship(back_populates="notes")
 
 
 class User(Base):
@@ -24,3 +27,5 @@ class User(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     email: Mapped[str] = mapped_column(String(200), unique=True, nullable=False)
     hashed_password: Mapped[str] = mapped_column(String(200), nullable=False)
+
+    notes: Mapped["Note"] = relationship(back_populates="owner")

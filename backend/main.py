@@ -18,13 +18,22 @@ from .schemas import (
     Token,
     TokenData,
 )
-from .security import get_password_hash, authenticate_user, create_access_token
+from .security import (
+    get_password_hash,
+    authenticate_user,
+    create_access_token,
+    get_current_user,
+)
 
 app = FastAPI()
 
 
 @app.post("/notes", response_model=NoteRead, status_code=201)
-def create_note(note_in: NoteCreate, session: Session = Depends(get_session)):
+def create_note(
+    note_in: NoteCreate,
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_user),
+):
     note = Note(title=note_in.title, content=note_in.content)
     session.add(note)
     session.commit()
@@ -33,14 +42,19 @@ def create_note(note_in: NoteCreate, session: Session = Depends(get_session)):
 
 
 @app.get("/notes", response_model=list[NoteRead])
-def get_notes(session: Session = Depends(get_session)):
+def get_notes(
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_user),
+):
     result = session.execute(select(Note))
     return result.scalars().all()
 
 
 @app.get("/notes/{note_id}", response_model=NoteRead)
 def get_note(
-    note_id: Annotated[int, Path(ge=1)], session: Session = Depends(get_session)
+    note_id: Annotated[int, Path(ge=1)],
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_user),
 ):
     note = session.get(Note, note_id)
     if note is None:
@@ -55,6 +69,7 @@ def edit_note(
     note_id: Annotated[int, Path(ge=1)],
     note_in: NoteCreate,
     session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_user),
 ):
     note = session.get(Note, note_id)
     if note is None:
@@ -70,7 +85,9 @@ def edit_note(
 
 @app.delete("/notes/{note_id}", status_code=204)
 def delete_note(
-    note_id: Annotated[int, Path(ge=1)], session: Session = Depends(get_session)
+    note_id: Annotated[int, Path(ge=1)],
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_user),
 ):
     note = session.get(Note, note_id)
     if note is None:
