@@ -26,6 +26,7 @@ def _schema():
     yield
     Base.metadata.drop_all(bind=test_engine)
 
+
 @pytest.fixture(autouse=True)
 def _clean_tables():
     with test_engine.begin() as conn:
@@ -34,7 +35,7 @@ def _clean_tables():
 
 
 @pytest.fixture
-def get_test_session():
+def client():
     def override_test_session():
         with TestSessionLocal() as session:
             yield session
@@ -43,7 +44,54 @@ def get_test_session():
     yield TestClient(app)
     app.dependency_overrides.clear()
 
+
 @pytest.fixture
 def db_session():
     with TestSessionLocal() as session:
         yield session
+
+
+@pytest.fixture
+def create_user(client):
+    def _create(email="user@example.com", password="secret123"):
+        response = client.post(
+            "/register", json={"email": email, "password": password}
+        )
+        assert response.status_code == 201, response.text
+        data = response.json()
+        return {"id": data["id"], "email": data["email"], "password": password}
+
+    return _create
+
+
+@pytest.fixture
+def login(client):
+    def _login(email, password):
+        response = client.post(
+            "/token", data={"username": email, "password": password}
+        )
+        assert response.status_code == 200, response.text
+        data = response.json()
+        return {"Authorization": f"Bearer {data['access_token']}"}
+
+    return _login
+
+
+@pytest.fixture
+def user_a(create_user):
+    return create_user("a@example.com", "password-a")
+
+
+@pytest.fixture
+def user_b(create_user):
+    return create_user("b@example.com", "password-b")
+
+
+@pytest.fixture
+def auth_a(user_a, login):
+    return login(user_a["email"], user_a["password"])
+
+
+@pytest.fixture
+def auth_b(user_b, login):
+    return login(user_b["email"], user_b["password"])

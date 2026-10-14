@@ -2,3 +2,4 @@
 venv/
 frontend/index.html:Zone.Identifier
 .env
+.DS_Store
