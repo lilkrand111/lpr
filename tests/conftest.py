@@ -54,9 +54,7 @@ def db_session():
 @pytest.fixture
 def create_user(client):
     def _create(email="user@example.com", password="secret123"):
-        response = client.post(
-            "/register", json={"email": email, "password": password}
-        )
+        response = client.post("/register", json={"email": email, "password": password})
         assert response.status_code == 201, response.text
         data = response.json()
         return {"id": data["id"], "email": data["email"], "password": password}
@@ -67,9 +65,7 @@ def create_user(client):
 @pytest.fixture
 def login(client):
     def _login(email, password):
-        response = client.post(
-            "/token", data={"username": email, "password": password}
-        )
+        response = client.post("/token", data={"username": email, "password": password})
         assert response.status_code == 200, response.text
         data = response.json()
         return {"Authorization": f"Bearer {data['access_token']}"}
@@ -96,10 +92,19 @@ def auth_a(user_a, login):
 def auth_b(user_b, login):
     return login(user_b["email"], user_b["password"])
 
+
 @pytest.fixture
 def create_note(client):
-    def _create(headers, title='Заметка', content='Текст'):
-        response = client.post('/notes', json={'title': title, 'content': content}, headers=headers)
+    def _create(headers, title="Заметка", content="Текст"):
+        response = client.post(
+            "/notes", json={"title": title, "content": content}, headers=headers
+        )
         assert response.status_code == 201, response.text
         return response.json()
+
     return _create
+
+
+@pytest.fixture
+def note_a(auth_a, create_note):
+    return create_note(auth_a, title="Название", content="Текст")
