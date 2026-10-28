@@ -95,3 +95,11 @@ def auth_a(user_a, login):
 @pytest.fixture
 def auth_b(user_b, login):
     return login(user_b["email"], user_b["password"])
+
+@pytest.fixture
+def create_note(client):
+    def _create(headers, title='Заметка', content='Текст'):
+        response = client.post('/notes', json={'title': title, 'content': content}, headers=headers)
+        assert response.status_code == 201, response.text
+        return response.json()
+    return _create
