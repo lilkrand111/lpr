@@ -76,3 +76,43 @@ def test_own_notes(client, auth_a, auth_b, create_note):
     data = response.json()
     assert len(data) == 1
     assert {n["title"] for n in data} == {"B1"}
+
+
+def test_foreign_note(client, auth_a, auth_b, create_note):
+    note = create_note(headers=auth_a, title='A1', content='A1 content')
+    response = client.get(f'/notes/{note['id']}', headers=auth_b)
+    assert response.status_code == 404
+    assert 'A1' not in response.text
+    response = client.get(f'/notes/{note['id']}', headers=auth_a)
+    assert response.status_code == 200
+    data = response.json()
+    assert data['title'] == 'A1'
+    assert data['content'] == 'A1 content'
+
+
+def test_foreign_put_note(client, auth_a, auth_b, create_note):
+    title = 'A1'
+    body = {
+        'title': 'A2',
+        'content': 'A2 content'
+    }
+    note = create_note(headers=auth_a, title=title)
+    response = client.put(f'/notes/{note['id']}', json=body, headers=auth_b)
+    assert response.status_code == 404
+    assert 'A1' not in response.text
+    response = client.get(f'/notes/{note['id']}', headers=auth_a)
+    assert response.status_code == 200
+    assert response.json()['title'] == title
+
+
+def test_foreign_delete_note(client, auth_a, auth_b, create_note):
+    title = 'A1'
+    content = 'A1 content'
+    note = create_note(headers=auth_a, title=title, content=content)
+    response = client.delete(f'/notes/{note['id']}', headers=auth_b)
+    assert response.status_code == 404
+    response = client.get(f'/notes/{note['id']}', headers=auth_a)
+    assert response.status_code == 200
+    data = response.json()
+    assert data['title'] == title
+    assert data['content'] == content
